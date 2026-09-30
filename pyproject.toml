@@ -1,0 +1,40 @@
+[project]
+name = "medblue-data"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "espona", email = "lucia.espona@gmail.com" }
+]
+dependencies = [
+    "fastapi>=0.142.2",
+    "psycopg[binary]>=3.3.6",
+    "pytest>=9.1.1",
+    "sqlmodel>=0.0.47",
+    "uvicorn>=0.54.0",
+]
+
+[tool.uv]
+package = false   # 💡 This stops uv from expecting src/your_project_name/
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi[standard]>=0.142.2",
+    "httpx>=0.28.1",
+    "sqlmodel>=0.0.47",
+]
+
+[project.scripts]
+medblue-data = "app:main"
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+]
