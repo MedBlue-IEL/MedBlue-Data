@@ -2,18 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from database import get_session
-from models.projects import Project
+from models.projects import Project, ProjectCreate, ProjectUpdate
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
 
 # 1. CREATE a new project
 @router.post("/", response_model=Project, status_code=status.HTTP_201_CREATED)
-def create_project(project: Project, session: Session = Depends(get_session)) -> Project:
-    session.add(project)
+def create_project(project: ProjectCreate, session: Session = Depends(get_session)) -> Project:
+    # Convert the clean schema payload into the real DB Table format
+    db_project = Project.model_validate(project)
+    session.add(db_project)
     session.commit()
-    session.refresh(project)
-    return project
+    session.refresh(db_project)
+
+    # Returns the created hero, which now safely includes the database-generated ID
+    return db_project
 
 
 # 2. READ all projects (with simple pagination limits)
@@ -33,23 +37,26 @@ def read_project(project_id: int, session: Session = Depends(get_session)) -> Pr
     return project
 
 
-# 4. UPDATE an existing project
-@router.put("/{project_id}", response_model=Project)
-def update_project(project_id: int, updated_data: Project, session: Session = Depends(get_session)) -> Project:
+# 4. PATCH/UPDATE an existing project
+# Swagger UI will display a dynamic payload with NO ID field included.
+@router.patch("{project_id}", response_model=Project)
+def update_project(project_id: int, updated_data: ProjectUpdate, session: Session = Depends(get_session)):
+    # Look up the existing record in Postgres
     db_project = session.get(Project, project_id)
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Exclude fields like 'id' or 'created_at' from rewriting
-    data_to_update = updated_data.model_dump(exclude_unset=True, exclude={"id", "created_at"})
-    for key, value in data_to_update.items():
+    # Extract only the data sent by the client, ignoring empty/unset values
+    update_data = updated_data.model_dump(exclude_unset=True)
+
+    # Merge the updated attributes onto our existing database record object
+    for key, value in update_data.items():
         setattr(db_project, key, value)
 
     session.add(db_project)
     session.commit()
     session.refresh(db_project)
     return db_project
-
 
 # 5. DELETE a project
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
