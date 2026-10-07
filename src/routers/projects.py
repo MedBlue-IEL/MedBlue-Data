@@ -1,13 +1,17 @@
+from typing import cast
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
+from sqlmodel.sql.expression import SelectOfScalar, col  # Import the type wrapper
 
+from commons.util import generate_clean_code
 from database import get_session
 from models.projects import Project, ProjectCreate, ProjectUpdate
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
 
-# 1. CREATE a new project
+# CREATE a new project
 @router.post("/", response_model=Project, status_code=status.HTTP_201_CREATED)
 def create_project(project: ProjectCreate, session: Session = Depends(get_session)) -> Project:
     # Convert the clean schema payload into the real DB Table format
@@ -20,7 +24,7 @@ def create_project(project: ProjectCreate, session: Session = Depends(get_sessio
     return db_project
 
 
-# 2. READ all projects (with simple pagination limits)
+# READ all projects (with simple pagination limits)
 @router.get("/", response_model=list[Project])
 def read_projects(offset: int = 0, limit: int = 100, session: Session = Depends(get_session)):
     statement = select(Project).offset(offset).limit(limit)
@@ -28,7 +32,7 @@ def read_projects(offset: int = 0, limit: int = 100, session: Session = Depends(
     return projects
 
 
-# 3. READ a single project by ID
+# READ a single project by ID
 @router.get("/{project_id}", response_model=Project)
 def read_project(project_id: int, session: Session = Depends(get_session)) -> Project:
     project = session.get(Project, project_id)
@@ -36,8 +40,24 @@ def read_project(project_id: int, session: Session = Depends(get_session)) -> Pr
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
+# READ a single project by code
+@router.get("/code/{project_code}", response_model=Project)
+def read_project_by_code(project_code: str, session: Session = Depends(get_session)) -> Project:
 
-# 4. PATCH/UPDATE an existing project
+    clean_code = generate_clean_code(project_code)
+    # 1. Build the select statement filtering by the unique field
+    statement: SelectOfScalar[Project]  = cast(
+        SelectOfScalar[Project],
+        select(Project).where(col(Project.project_code) == clean_code)
+    )
+
+    # 2. Execute the statement and get the first result or None
+    project = session.exec(statement).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+# PATCH/UPDATE an existing project
 # Swagger UI will display a dynamic payload with NO ID field included.
 @router.patch("{project_id}", response_model=Project)
 def update_project(project_id: int, updated_data: ProjectUpdate, session: Session = Depends(get_session)):

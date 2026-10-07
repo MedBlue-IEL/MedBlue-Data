@@ -1,31 +1,42 @@
 from datetime import datetime
+
+from pydantic import field_validator
 from sqlmodel import Field, SQLModel, text
-from sqlalchemy import func
+from sqlalchemy import DateTime, func
+
+from commons.util import generate_clean_code
+
 
 # Shared fields
 class ProjectBase(SQLModel):
-    project_id: str = Field(index=True, max_length=255)
-    project_name: str = Field(index=False, max_length=255)
-    start_date: datetime = Field(index=False)
-    end_date: datetime = Field(index=False)
-    responsible_institution: str = Field(index=False, max_length=255)
-    project_manager: str = Field(index=False, max_length=255)
-    funding_source: str = Field(index=False, max_length=255)
-    rights_holder: str = Field(index=False, max_length=255)
-    project_remarks: str = Field(index=False)
+    project_code: str = Field(index=True, unique=True, max_length=255)
+    project_name: str = Field(index=False, unique=True, max_length=255)
+    start_date: datetime | None  = Field(default=None, index=False)
+    end_date: datetime | None  = Field(default=None, index=False)
+    responsible_institution: str | None  = Field(default=None, index=False, max_length=255)
+    project_manager: str | None  = Field(default=None, index=False, max_length=255)
+    funding_source: str | None  = Field(default=None, index=False, max_length=255)
+    rights_holder: str | None  = Field(default=None, index=False, max_length=255)
+    project_remarks: str | None  = Field(default=None, index=False)
+
+    @field_validator("project_code", mode="before")
+    @classmethod
+    def force_uppercase_clean_code(cls, value: str) -> str:
+        return generate_clean_code(value)
 
 # Includes database-specific logic and fields
 class Project(ProjectBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    created: datetime = Field(
-        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")}
+    created: datetime | None = Field(
+        default=None,
+        sa_type=DateTime(timezone=True),
+        sa_column_kwargs={"server_default": func.now()},
+        nullable=False,
     )
     modified: datetime | None = Field(
         default=None,
-        sa_column_kwargs={
-            "server_default": text("CURRENT_TIMESTAMP"),
-            "onupdate": func.now() # SQLAlchemy hook to update on edits
-        }
+        sa_type=DateTime(timezone=True),
+        sa_column_kwargs={"onupdate": func.now(), "server_default": func.now()},
     )
 
 # Exactly what shows up in Swagger POST documentation (No ID!)
