@@ -25,6 +25,7 @@ if config.config_file_name is not None:
 # target_metadata = None
 from sqlmodel import SQLModel
 from src.models.projects import Project
+from src.models.campaign_event import CampaignEvent
 target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
