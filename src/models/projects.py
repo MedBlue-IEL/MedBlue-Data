@@ -4,6 +4,10 @@ from pydantic import field_validator
 from sqlmodel import Field, SQLModel, text
 from sqlalchemy import DateTime, func
 
+import os
+import sys
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))  # Add project root to sys.path
+
 from commons.util import generate_clean_code
 
 

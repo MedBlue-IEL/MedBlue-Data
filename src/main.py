@@ -9,7 +9,7 @@ from routers import projects
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup: Create tables in your PostgreSQL database
-    create_db_and_tables()
+    # create_db_and_tables()
     yield
     # Shutdown: Clean up operations go here if needed (e.g. closing connection pools)
 
