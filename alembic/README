@@ -1,1 +1,11 @@
 Generic single-database configuration.
+
+To create anew version:
+```
+alembic revision --autogenerate -m "fix_campaign_event_table"
+```
+
+Apply changes to DB:
+```
+alembic upgrade head
+```

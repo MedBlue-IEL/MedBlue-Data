@@ -1,9 +1,11 @@
 from datetime import datetime
 
 from pydantic import field_validator
-from sqlmodel import Field, SQLModel, text
 from sqlalchemy import DateTime, func
-
+from typing import List
+from sqlmodel import Field, SQLModel, Column, Index
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Integer
 import os
 import sys
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))  # Add project root to sys.path
@@ -19,6 +21,19 @@ class CampaignEventBase(SQLModel):
     end_date: datetime | None  = Field(default=None, index=False)
     campaign_remarks: str | None  = Field(default=None, index=False)
     project_id: int | None = Field(default=None, index=True, foreign_key="project.id")
+    habitat_ids: List[int] = Field(
+        default=[],
+        sa_column=Column(ARRAY(Integer), server_default="{}")
+    )
+
+    # Use __table_args__ to cleanly declare a complex GIN index
+    __table_args__ = (
+        Index(
+            "idx_campaign_event_habitat_ids",  # Index Name
+            "habitat_ids",                     # Column name string
+            postgresql_using="gin"             # Index type
+        ),
+    )
 
     @field_validator("campaign_code", mode="before")
     @classmethod
@@ -27,6 +42,7 @@ class CampaignEventBase(SQLModel):
 
 # Includes database-specific logic and fields
 class CampaignEvent(CampaignEventBase, table=True):
+    __tablename__ = "campaign_event"
     id: int | None = Field(default=None, primary_key=True)
     created: datetime | None = Field(
         default=None,

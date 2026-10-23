@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 
 from database import create_db_and_tables
-from routers import projects, campaign_events
+from routers import projects, campaign_events, habitats
 
 # 💡 The modern way to handle setup and cleanup logic in FastAPI
 @asynccontextmanager
@@ -18,6 +18,7 @@ app = FastAPI(lifespan=lifespan)
 # Register the modular router
 app.include_router(projects.router)
 app.include_router(campaign_events.router)
+app.include_router(habitats.router)
 
 @app.get("/")
 def read_root() -> dict[str, str]:

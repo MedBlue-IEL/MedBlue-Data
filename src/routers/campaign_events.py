@@ -1,7 +1,7 @@
 from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from sqlmodel.sql.expression import SelectOfScalar, col  # Import the type wrapper
 
