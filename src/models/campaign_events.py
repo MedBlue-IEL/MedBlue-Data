@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import field_validator
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, func, UniqueConstraint
 from typing import List
 from sqlmodel import Field, SQLModel, Column, Index
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -15,8 +15,8 @@ from commons.util import generate_clean_code
 
 # Shared fields
 class CampaignEventBase(SQLModel):
-    campaign_code: str = Field(index=True, unique=True, max_length=255)
-    campaign_name: str = Field(index=False, unique=True, max_length=255)
+    campaign_code: str = Field(index=True, unique=False, max_length=255)
+    campaign_name: str = Field(index=False, unique=False, max_length=255)
     start_date: datetime | None  = Field(default=None, index=False)
     end_date: datetime | None  = Field(default=None, index=False)
     campaign_remarks: str | None  = Field(default=None, index=False)
@@ -33,6 +33,7 @@ class CampaignEventBase(SQLModel):
             "habitat_ids",                     # Column name string
             postgresql_using="gin"             # Index type
         ),
+        UniqueConstraint('campaign_code', 'project_id', name='unique_campaign_event_code_project_id', deferrable=True, initially='DEFERRED'),
     )
 
     @field_validator("campaign_code", mode="before")
@@ -67,4 +68,6 @@ class CampaignEventUpdate(SQLModel):
     start_date: datetime | None = None
     end_date: datetime | None = None
     campaign_remarks: str | None = None
+    project_id: int | None = None
+    habitat_ids: List[int] | None = None
 

@@ -4,6 +4,9 @@ from sqlmodel import Session, SQLModel, create_engine
 from pathlib import Path
 from dotenv import load_dotenv
 
+from seeds.seed_habitats import seed_habitats_data
+from seeds.seed_municipalities import seed_municipalites_data
+
 # Locate the .env file in the parent folder
 env_path = Path(__file__).resolve().parent.parent / ".env"
 # Explicitly load the .env file into environment variables
@@ -40,6 +43,9 @@ def create_db_and_tables() -> None:
     # Create tables
     SQLModel.metadata.create_all(engine)
 
+def seed_db() -> None:
+    seed_habitats_data(engine)
+    seed_municipalites_data(engine)
 
 def get_session() -> Generator[Session, None, None]:
     with Session(engine) as session:

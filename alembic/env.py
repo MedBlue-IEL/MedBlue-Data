@@ -1,9 +1,12 @@
 from logging.config import fileConfig
+from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+import alembic_postgresql_enum
 
 import os
 import sys
@@ -27,7 +30,22 @@ from sqlmodel import SQLModel
 from src.models.projects import Project
 from src.models.campaign_events import CampaignEvent
 from src.models.habitats import Habitat
+from src.models.municipalities import Municipality
+from src.models.stations import Station
+
 target_metadata = SQLModel.metadata
+
+# Locate the .env file in the parent folder
+env_path = Path(__file__).resolve().parent.parent / ".env"
+# Explicitly load the .env file into environment variables
+# override=True ensures it replaces existing keys if needed
+load_dotenv(dotenv_path=env_path, override=True)
+
+# 💡 Use environment variables so you don't hardcode sensitive credentials!
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+psycopg://postgres:postgres@localhost:5432/medblue"
+)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -55,7 +73,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = DATABASE_URL
+    # url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
