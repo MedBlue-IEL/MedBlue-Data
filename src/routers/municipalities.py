@@ -63,7 +63,7 @@ def read_municipality_by_code(municipality_code: str, session: Session = Depends
 
 # PATCH/UPDATE an existing municipality
 # Swagger UI will display a dynamic payload with NO ID field included.
-@router.patch("{municipality_id}", response_model=Municipality)
+@router.patch("/{municipality_id}", response_model=Municipality)
 def update_municipality(municipality_id: int, updated_data: MunicipalityUpdate, session: Session = Depends(get_session)):
     # Look up the existing record in Postgres
     db_municipality = session.get(Municipality, municipality_id)

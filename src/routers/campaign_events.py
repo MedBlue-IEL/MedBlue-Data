@@ -79,7 +79,7 @@ def read_campaign_event_by_code(project_id: int, session: Session = Depends(get_
 
 # PATCH/UPDATE an existing campaign_event
 # Swagger UI will display a dynamic payload with NO ID field included.
-@router.patch("{campaign_event_id}", response_model=CampaignEvent)
+@router.patch("/{campaign_event_id}", response_model=CampaignEvent)
 def update_campaign_event(campaign_event_id: int, updated_data: CampaignEventUpdate, session: Session = Depends(get_session)):
     # Look up the existing record in Postgres
     db_campaign_event = session.get(CampaignEvent, campaign_event_id)

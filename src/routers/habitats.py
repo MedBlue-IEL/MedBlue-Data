@@ -63,7 +63,7 @@ def read_habitat_by_code(habitat_code: str, session: Session = Depends(get_sessi
 
 # PATCH/UPDATE an existing habitat
 # Swagger UI will display a dynamic payload with NO ID field included.
-@router.patch("{habitat_id}", response_model=Habitat)
+@router.patch("/{habitat_id}", response_model=Habitat)
 def update_habitat(habitat_id: int, updated_data: HabitatUpdate, session: Session = Depends(get_session)):
     # Look up the existing record in Postgres
     db_habitat = session.get(Habitat, habitat_id)
