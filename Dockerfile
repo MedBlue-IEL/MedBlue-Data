@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM python:3.11-slim AS builder
+FROM python:3.15.2-slim AS builder
 
 # Copy the official uv binary directly into our builder container
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
 # --- Final Production Stage ---
-FROM python:3.11-slim AS runner
+FROM python:3.15.2-slim AS runner
 
 WORKDIR /app
 
@@ -35,6 +35,10 @@ RUN groupadd -g 1001 appgroup && \
 # Copy the complete pre-built virtual environment from the builder stage
 COPY --from=builder /app/.venv /app/.venv
 COPY ./src /app/src
+# Migrations and seed data are needed at runtime (alembic upgrade + startup seed)
+COPY ./alembic /app/alembic
+COPY ./alembic.ini /app/alembic.ini
+COPY ./resources /app/resources
 
 # Place the virtual environment's executable path first so 'uvicorn' is automatically discovered
 ENV PATH="/app/.venv/bin:$PATH"

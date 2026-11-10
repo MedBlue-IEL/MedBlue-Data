@@ -94,8 +94,11 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Use DATABASE_URL (not the fixed URL of alembic.ini) so it works inside Docker
+    ini_section = config.get_section(config.config_ini_section, {})
+    ini_section["sqlalchemy.url"] = DATABASE_URL
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        ini_section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

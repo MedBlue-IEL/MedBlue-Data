@@ -20,10 +20,14 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
-    pass
+    """Upgrade schema.
+
+    Drop the old unique index on campaign_code (created in 2bb8f3776c85) so that
+    b08d3abf7396 can recreate it; otherwise upgrade fails with DuplicateTable.
+    """
+    op.execute("DROP INDEX IF EXISTS ix_campaign_event_campaign_code")
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    pass
+    op.create_index(op.f('ix_campaign_event_campaign_code'), 'campaign_event', ['campaign_code'], unique=True)
