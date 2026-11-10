@@ -63,7 +63,7 @@ def read_station_by_code(station_code: str, session: Session = Depends(get_sessi
 
 # PATCH/UPDATE an existing station
 # Swagger UI will display a dynamic payload with NO ID field included.
-@router.patch("{station_id}", response_model=Station)
+@router.patch("/{station_id}", response_model=Station)
 def update_station(station_id: int, updated_data: StationUpdate, session: Session = Depends(get_session)):
     # Look up the existing record in Postgres
     db_station = session.get(Station, station_id)

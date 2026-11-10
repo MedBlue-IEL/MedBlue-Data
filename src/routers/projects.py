@@ -59,7 +59,7 @@ def read_project_by_code(project_code: str, session: Session = Depends(get_sessi
 
 # PATCH/UPDATE an existing project
 # Swagger UI will display a dynamic payload with NO ID field included.
-@router.patch("{project_id}", response_model=Project)
+@router.patch("/{project_id}", response_model=Project)
 def update_project(project_id: int, updated_data: ProjectUpdate, session: Session = Depends(get_session)):
     # Look up the existing record in Postgres
     db_project = session.get(Project, project_id)
