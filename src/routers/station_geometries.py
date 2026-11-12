@@ -60,6 +60,23 @@ def read_station_geometry_by_uuid(station_geometry_uuid: uuid.UUID, session: Ses
         raise HTTPException(status_code=404, detail="StationGeometry not found")
     return station_geometry
 
+# GET multiple station_geometry by station_id
+@router.get("/station/{station_id}", response_model=list[StationGeometry])
+def read_station_geometries_by_station_id(station_id: int, session: Session = Depends(get_session)) -> list[StationGeometry]:
+
+    # 1. Build the select statement filtering by the foreign key
+    statement: SelectOfScalar[StationGeometry] = cast(
+        SelectOfScalar[StationGeometry],
+        select(StationGeometry).where(col(StationGeometry.station_id) == station_id)
+    )
+
+    # 2. Execute the statement and get the first result or None
+    campaign_events = session.exec(statement)
+    if not campaign_events:
+        raise HTTPException(status_code=404, detail="StationGeometry for Station Id not found")
+    return list(campaign_events)
+
+
 # PATCH/UPDATE an existing station_geometry
 # Swagger UI will display a dynamic payload with NO ID field included.
 @router.patch("/{station_geometry_id}", response_model=StationGeometry)

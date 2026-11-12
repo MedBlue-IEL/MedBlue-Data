@@ -33,6 +33,7 @@ from src.models.habitats import Habitat
 from src.models.municipalities import Municipality
 from src.models.stations import Station
 from src.models.station_geometries import StationGeometry
+from src.models.sampling_events import SamplingEvent
 
 target_metadata = SQLModel.metadata
 

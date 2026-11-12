@@ -37,22 +37,22 @@ def read_campaign_events(offset: int = 0, limit: int = 100, session: Session = D
     return campaign_events
 
 # READ a single campaign_event by ID
-@router.get("/{campaign_event_id}", response_model=CampaignEvent)
-def read_campaign_event(campaign_event_id: int, session: Session = Depends(get_session)) -> CampaignEvent:
-    campaign_event = session.get(CampaignEvent, campaign_event_id)
+@router.get("/{campaign_id}", response_model=CampaignEvent)
+def read_campaign_event(campaign_id: int, session: Session = Depends(get_session)) -> CampaignEvent:
+    campaign_event = session.get(CampaignEvent, campaign_id)
     if not campaign_event:
         raise HTTPException(status_code=404, detail="Campaign Event not found")
     return campaign_event.first()
 
 # READ a single campaign_event by code
-@router.get("/code/{campaign_event_code}", response_model=CampaignEvent)
-def read_campaign_event_by_code(campaign_event_code: str, session: Session = Depends(get_session)) -> CampaignEvent:
+@router.get("/code/{campaign_code}", response_model=CampaignEvent)
+def read_campaign_event_by_code(campaign_code: str, session: Session = Depends(get_session)) -> CampaignEvent:
 
-    clean_code = generate_clean_code(campaign_event_code)
+    clean_code = generate_clean_code(campaign_code)
     # 1. Build the select statement filtering by the unique field
     statement: SelectOfScalar[CampaignEvent]  = cast(
         SelectOfScalar[CampaignEvent],
-        select(CampaignEvent).where(col(CampaignEvent.campaign_event_code) == clean_code)
+        select(CampaignEvent).where(col(CampaignEvent.campaign_code) == clean_code)
     )
 
     # 2. Execute the statement and get the first result or None
@@ -61,9 +61,9 @@ def read_campaign_event_by_code(campaign_event_code: str, session: Session = Dep
         raise HTTPException(status_code=404, detail="CampaignEvent not found")
     return campaign_event
 
-# GET a multiple campaign_event by project_id
+# GET multiple campaign_event by project_id
 @router.get("/project/{project_id}", response_model=list[CampaignEvent])
-def read_campaign_event_by_code(project_id: int, session: Session = Depends(get_session)) -> list[CampaignEvent]:
+def read_campaign_events_by_project_id(project_id: int, session: Session = Depends(get_session)) -> list[CampaignEvent]:
 
     # 1. Build the select statement filtering by the foreign key
     statement: SelectOfScalar[CampaignEvent] = cast(
@@ -79,12 +79,12 @@ def read_campaign_event_by_code(project_id: int, session: Session = Depends(get_
 
 # PATCH/UPDATE an existing campaign_event
 # Swagger UI will display a dynamic payload with NO ID field included.
-@router.patch("/{campaign_event_id}", response_model=CampaignEvent)
-def update_campaign_event(campaign_event_id: int, updated_data: CampaignEventUpdate, session: Session = Depends(get_session)):
+@router.patch("/{campaign_id}", response_model=CampaignEvent)
+def update_campaign_event(campaign_id: int, updated_data: CampaignEventUpdate, session: Session = Depends(get_session)):
     # Look up the existing record in Postgres
-    db_campaign_event = session.get(CampaignEvent, campaign_event_id)
+    db_campaign_event = session.get(CampaignEvent, campaign_id)
     if not db_campaign_event:
-        raise HTTPException(status_code=404, detail="CampaignEvent not found")
+        raise HTTPException(status_code=404, detail="Campaign Event not found")
 
     # Extract only the data sent by the client, ignoring empty/unset values
     update_data = updated_data.model_dump(exclude_unset=True)
@@ -99,9 +99,9 @@ def update_campaign_event(campaign_event_id: int, updated_data: CampaignEventUpd
     return db_campaign_event
 
 # 5. DELETE a campaign_event
-@router.delete("/{campaign_event_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{campaign_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_campaign_event(campaign_event_id: int, session: Session = Depends(get_session)) -> None:
-    campaign_event = session.get(CampaignEvent, campaign_event_id)
+    campaign_event = session.get(CampaignEvent, campaign_id)
     if not campaign_event:
         raise HTTPException(status_code=404, detail="CampaignEvent not found")
 
