@@ -21,10 +21,10 @@ class EventType(StrEnum):
 # Shared fields
 class SamplingEventBase(SQLModel):
     sampling_code: str = Field(index=True, unique=False, max_length=255)
-    campaign_id: int | None = Field(default=None, index=True, foreign_key="campaign_event.id")
+    campaign_id: int = Field(default=None, index=True, foreign_key="campaign_event.id")
     habitat_id: int | None = Field(default=None, index=True, foreign_key="habitat.id")
     station_geometry_id: int | None = Field(default=None, index=True, foreign_key="station_geometry.id")
-    event_type: EventType = Field(
+    event_type: EventType | None = Field(
         sa_column=Column(
             Enum(EventType),
             default=None,

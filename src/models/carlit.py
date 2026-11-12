@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 # Shared fields
 class CarlitBase(SQLModel):
     carlit_name: str = Field(index=True, unique=True, max_length=255)
-    remarks: str = Field(index=False, unique=False, max_length=255)
-    sensitivity_level: int = Field(index=False, unique=False)
+    remarks: str | None = Field(index=False, unique=False, max_length=255)
+    sensitivity_level: int | None = Field(index=False, unique=False)
 
 # Includes database-specific logic and fields
 class Carlit(CarlitBase, table=True):

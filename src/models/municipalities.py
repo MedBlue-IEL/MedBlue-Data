@@ -11,19 +11,19 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 # Shared fields
 class MunicipalityBase(SQLModel):
     municipality_code: str = Field(index=True, unique=True, max_length=255)
-    municipality_name: str = Field(index=False, unique=True, max_length=255)
-    continent: str = Field(index=False, unique=False, max_length=255)
-    water_body: str = Field(index=False, unique=False, max_length=255)
-    country: str = Field(index=False, unique=False, max_length=255)
-    country_code: str = Field(index=False, unique=False, max_length=255)
-    state_province: str = Field(index=False, unique=False, max_length=255)
-    county: str = Field(index=False, unique=False, max_length=255)
-    inspireid: str = Field(index=False, unique=True, max_length=255)
-    natlevel: str = Field(index=False, unique=False, max_length=255)
-    netcode: str = Field(index=False, unique=False, max_length=255)
-    codnut1: str = Field(index=False, unique=False, max_length=255)
-    codnut2: str = Field(index=False, unique=False, max_length=255)
-    codnut3: str = Field(index=False, unique=False, max_length=255)
+    municipality_name: str | None = Field(index=False, unique=True, max_length=255)
+    continent: str | None = Field(index=False, unique=False, max_length=255)
+    water_body: str | None = Field(index=False, unique=False, max_length=255)
+    country: str | None = Field(index=False, unique=False, max_length=255)
+    country_code: str | None = Field(index=False, unique=False, max_length=255)
+    state_province: str | None = Field(index=False, unique=False, max_length=255)
+    county: str | None = Field(index=False, unique=False, max_length=255)
+    inspireid: str | None = Field(index=False, unique=True, max_length=255)
+    natlevel: str | None = Field(index=False, unique=False, max_length=255)
+    netcode: str | None = Field(index=False, unique=False, max_length=255)
+    codnut1: str | None = Field(index=False, unique=False, max_length=255)
+    codnut2: str | None = Field(index=False, unique=False, max_length=255)
+    codnut3: str | None = Field(index=False, unique=False, max_length=255)
 
 # Includes database-specific logic and fields
 class Municipality(MunicipalityBase, table=True):

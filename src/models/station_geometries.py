@@ -11,9 +11,9 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 
 # Shared fields
 class StationGeometryBase(SQLModel):
-    station_id: int | None = Field(default=None, index=True, foreign_key="station.id")
+    station_id: int = Field(default=None, index=True, foreign_key="station.id")
     uuid: uuid.UUID = Field(default=None, index=True, unique=True)
-    remarks: str = Field(index=False, unique=False, max_length=255)
+    remarks: str | None = Field(index=False, unique=False, max_length=255)
 
 # Includes database-specific logic and fields
 class StationGeometry(StationGeometryBase, table=True):

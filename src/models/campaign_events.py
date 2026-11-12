@@ -16,12 +16,11 @@ from commons.util import generate_clean_code
 # Shared fields
 class CampaignEventBase(SQLModel):
     campaign_code: str = Field(index=True, unique=False, max_length=255)
-    campaign_name: str = Field(index=False, unique=False, max_length=255)
-    start_date: datetime | None  = Field(default=None, index=False)
-    end_date: datetime | None  = Field(default=None, index=False)
-    campaign_remarks: str | None  = Field(default=None, index=False)
-    project_id: int | None = Field(default=None, index=True, foreign_key="project.id")
-    habitat_ids: List[int] = Field(
+    project_id: int = Field(default=None, index=True, foreign_key="project.id")
+    start_date: datetime | None = Field(default=None, index=False)
+    end_date: datetime | None = Field(default=None, index=False)
+    campaign_remarks: str | None = Field(default=None, index=False)
+    habitat_ids: List[int] | None = Field(
         default=[],
         sa_column=Column(ARRAY(Integer), server_default="{}")
     )
@@ -64,10 +63,9 @@ class CampaignEventCreate(CampaignEventBase):
 # For incoming PATCH/PUT payloads (All fields optional, No ID)
 class CampaignEventUpdate(SQLModel):
     campaign_code: str | None = None
-    campaign_name: str | None = None
+    project_id: int | None = None
     start_date: datetime | None = None
     end_date: datetime | None = None
     campaign_remarks: str | None = None
-    project_id: int | None = None
     habitat_ids: List[int] | None = None
 
