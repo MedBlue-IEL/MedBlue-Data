@@ -49,7 +49,7 @@ class ProjectCreate(ProjectBase):
 
 # For incoming PATCH/PUT payloads (All fields optional, No ID)
 class ProjectUpdate(SQLModel):
-    project_id: str | None = None
+    project_code: str | None = None
     project_name: str | None = None
     start_date: datetime | None = None
     end_date: datetime | None = None

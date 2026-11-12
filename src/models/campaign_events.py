@@ -63,7 +63,7 @@ class CampaignEventCreate(CampaignEventBase):
 
 # For incoming PATCH/PUT payloads (All fields optional, No ID)
 class CampaignEventUpdate(SQLModel):
-    campaign_id: str | None = None
+    campaign_code: str | None = None
     campaign_name: str | None = None
     start_date: datetime | None = None
     end_date: datetime | None = None

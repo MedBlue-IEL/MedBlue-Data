@@ -42,5 +42,5 @@ class HabitatCreate(HabitatBase):
 
 # For incoming PATCH/PUT payloads (All fields optional, No ID)
 class HabitatUpdate(SQLModel):
-    habitat_id: str | None = None
+    habitat_code: str | None = None
     habitat_name: str | None = None
