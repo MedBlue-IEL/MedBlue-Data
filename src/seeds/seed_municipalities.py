@@ -36,7 +36,7 @@ def seed_data_from_csv(csv_file_path: str) -> List[Municipality]:
     return items_to_add
 
 
-def seed_municipalites_data(engine: Engine):
+def seed_municipalities_data(engine: Engine):
     with Session(engine) as session:
         # Check if data already exists to avoid duplication
         existing_count = session.exec(select(Municipality)).first()

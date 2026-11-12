@@ -35,6 +35,7 @@ from src.models.stations import Station
 from src.models.station_geometries import StationGeometry
 from src.models.sampling_events import SamplingEvent
 from src.models.carlit import Carlit
+from src.models.species import Species
 
 target_metadata = SQLModel.metadata
 
