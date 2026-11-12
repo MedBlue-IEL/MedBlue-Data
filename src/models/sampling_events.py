@@ -3,7 +3,6 @@ from enum import StrEnum
 
 from pydantic import field_validator
 from sqlalchemy import DateTime, func, UniqueConstraint
-from typing import List
 from sqlmodel import Field, SQLModel, Column, Enum
 
 import os
