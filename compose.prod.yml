@@ -1,0 +1,103 @@
+# Producción en el VPS de IONOS: API (FastAPI) + PostgreSQL, detrás de la VPN.
+# El frontend y la VPN (Caddy + wg-easy) están en el repo MedBlue-Web, carpeta deploy/.
+#
+# A diferencia de docker-compose.yml (desarrollo):
+# - Ningún servicio publica puertos. Docker se salta ufw, así que un `ports:` dejaría la API
+#   o PostgreSQL abiertos a internet. La API solo es accesible desde Caddy por la red `medblue`.
+# - Sin --reload, sin montar ./src y sin DATABASE_RECREATE: se ejecuta el código de la imagen.
+# - La contraseña de la BD no está en ningún fichero del repo ni en un .env: es un secreto de
+#   Docker que se lee de un fichero del servidor, fuera del repo (ver "secrets" al final).
+#
+# Una sola vez, en el servidor (como root):
+#   install -d -m 750 -g medblue /opt/medblue/secrets
+#   openssl rand -hex 32 | tr -d '\r\n' > /opt/medblue/secrets/db_password
+#   chmod 444 /opt/medblue/secrets/db_password
+#   wc -c < /opt/medblue/secrets/db_password   # debe dar 64: sin saltos de línea ni espacios
+#   docker network create medblue        # la comparte MedBlue-Web; si ya existe, da error y no pasa nada
+#
+# Arrancar o actualizar:
+#   docker compose -f compose.prod.yml up -d --build
+
+# Nombre distinto del de desarrollo: así los
+# volúmenes no coinciden y un `down -v` de uno nunca borra la BD del otro.
+name: medblue-data-prod
+
+x-logging: &logging
+  # Rotar los logs: sin esto Docker los guarda enteros y pueden llenar el disco
+  # (la API registra cada consulta SQL porque el engine tiene echo=True).
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+# Usuario y nombre de la BD: no son secretos, así que van aquí.
+x-db: &db
+  POSTGRES_USER: medblue
+  POSTGRES_DB: medblue
+
+services:
+  postgresdb:
+    image: postgres:15-alpine
+    container_name: medblue_postgres
+    restart: unless-stopped
+    environment:
+      <<: *db
+      # La imagen de PostgreSQL lee la contraseña de este fichero. Solo la usa la primera vez,
+      # al crear la BD en un volumen vacío: cambiar el fichero después NO cambia la contraseña.
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      # Los datos de la BD. No borrar el volumen: `docker compose down` lo conserva, `down -v` lo borra.
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Solo en la red interna del proyecto: ni Caddy ni los clientes de la VPN llegan a la BD.
+    networks:
+      - default
+    logging: *logging
+
+  fastapi_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: medblue-data:latest
+    # Caddy (MedBlue-Web/deploy) llega a la API por este nombre: API_UPSTREAM=fastapi_server:8000
+    container_name: fastapi_server
+    restart: unless-stopped
+    environment:
+      <<: *db
+    secrets:
+      - db_password
+    # 1) Monta DATABASE_URL con la contraseña del secreto (solo existe dentro del contenedor).
+    # 2) Aplica las migraciones pendientes (los seeds del arranque necesitan las tablas).
+    # 3) Arranca la API. `exec` hace que uvicorn reciba las señales de parada de Docker.
+    #    --root-path /api: Caddy publica la API en /api/* y quita el prefijo; así Swagger
+    #    (/api/docs) pide el esquema a /api/openapi.json y funciona detrás del proxy.
+    command: >-
+      sh -c 'export DATABASE_URL="postgresql+psycopg://$$POSTGRES_USER:$$(cat /run/secrets/db_password)@postgresdb:5432/$$POSTGRES_DB" &&
+      alembic upgrade head &&
+      exec uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir src --root-path /api'
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - default   # para hablar con postgresdb
+      - medblue   # para que Caddy le llegue
+    logging: *logging
+
+secrets:
+  db_password:
+    # Fuera del repo: sobrevive a un `git pull`, a volver a clonar y a cualquier cambio de configuración.
+    # DB_PASSWORD_FILE solo sirve para probar en otro equipo; en el servidor se usa la ruta por defecto.
+    file: ${DB_PASSWORD_FILE:-/opt/medblue/secrets/db_password}
+
+volumes:
+  postgres_data:
+
+networks:
+  medblue:
+    external: true
