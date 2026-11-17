@@ -37,6 +37,7 @@ from src.models.sampling_events import SamplingEvent
 from src.models.carlit import Carlit
 from src.models.species import Species
 from src.models.occurrences import Occurrence
+from src.models.measurements import Measurement
 
 target_metadata = SQLModel.metadata
 
