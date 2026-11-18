@@ -10,6 +10,11 @@ Local execution
 ```
 Swagger Documentation: http://localhost:8000/docs
 
+## Test
+
+```shell
+uv run pytest --tb=short
+```
 ## Alembic
 
 Keep the database in sync with the code
