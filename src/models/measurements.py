@@ -1,15 +1,12 @@
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import field_validator
-from sqlalchemy import DateTime, func, UniqueConstraint
+from sqlalchemy import DateTime, func
 from sqlmodel import Field, SQLModel, Column, Enum
 
 import os
 import sys
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))  # Add project root to sys.path
-
-from commons.util import generate_clean_code
 
 class MeasurementType(StrEnum):
     DENSITY = "Densidad"
@@ -38,7 +35,6 @@ class MeasurementUnitType(StrEnum):
 
 # Shared fields
 class MeasurementBase(SQLModel):
-    measurement_code: str = Field(index=True, unique=False, max_length=255)
     occurrence_id: int = Field(default=None, index=True, foreign_key="occurrence.id")
     reef_type: ReefType | None = Field(sa_column=Column(Enum(MeasurementType),
                                                                     default=None, nullable=True, index=False))
@@ -47,7 +43,7 @@ class MeasurementBase(SQLModel):
     measurement_value: int = Field(default=None, index=False, max_length=255)
     measurement_unit: MeasurementUnitType = Field(sa_column=Column(Enum(MeasurementUnitType),
                                                                     default=None, nullable=True, index=False))
-    measurement_determined_by: str | None = Field(default=None, index=False, max_length=255)
+    determined_by: str | None = Field(default=None, index=False, max_length=255)
     start_date: datetime | None = Field(default=None, index=False)
     end_date: datetime | None = Field(default=None, index=False)
     measurement_remarks: str | None  = Field(default=None, index=False)
@@ -55,16 +51,6 @@ class MeasurementBase(SQLModel):
     footprint_wtk: str | None  = Field(default=None, index=False)
     georeference_protocol: str | None  = Field(default=None, index=False)
     uuid: str | None  = Field(default=None, index=False)
-
-    # Use __table_args__ to cleanly declare a complex GIN index
-    __table_args__ = (
-        UniqueConstraint('measurement_code', 'occurrence_id', name='unique_measurement_code_occurrence_id', deferrable=True, initially='DEFERRED'),
-    )
-
-    @field_validator("measurement_code", mode="before")
-    @classmethod
-    def force_uppercase_clean_code(cls, value: str) -> str:
-        return generate_clean_code(value)
 
 # Includes database-specific logic and fields
 class Measurement(MeasurementBase, table=True):
@@ -88,13 +74,12 @@ class MeasurementCreate(MeasurementBase):
 
 # For incoming PATCH/PUT payloads (All fields optional, No ID)
 class MeasurementUpdate(SQLModel):
-    measurement_code: str | None = None
     occurrence_id: int | None = None
     reef_type: ReefType | None = None
     measurement_type: MeasurementType | None = None
     measurement_value: int | None = None
     measurement_unit: MeasurementUnitType  | None = None
-    measurement_determined_by: str | None = None
+    determined_by: str | None = None
     start_date: datetime | None = None
     end_date: datetime | None = None
     measurement_remarks: str | None = None

@@ -44,23 +44,6 @@ def read_measurement(measurement_id: int, session: Session = Depends(get_session
         raise HTTPException(status_code=404, detail="Measurement not found")
     return measurement.first()
 
-# READ a single measurement by code
-@router.get("/code/{measurement_code}", response_model=Measurement)
-def read_measurement_by_code(measurement_code: str, session: Session = Depends(get_session)) -> Measurement:
-
-    clean_code = generate_clean_code(measurement_code)
-    # 1. Build the select statement filtering by the unique field
-    statement: SelectOfScalar[Measurement]  = cast(
-        SelectOfScalar[Measurement],
-        select(Measurement).where(col(Measurement.measurement_code) == clean_code)
-    )
-
-    # 2. Execute the statement and get the first result or None
-    measurement = session.exec(statement).first()
-    if not measurement:
-        raise HTTPException(status_code=404, detail="Measurement not found")
-    return measurement
-
 # GET multiple measurement by occurrence_id
 @router.get("/occurrence/{occurrence_id}", response_model=list[Measurement])
 def read_measurements_by_occurrence_id(occurrence_id: int, session: Session = Depends(get_session)) -> list[Measurement]:
