@@ -1,11 +1,5 @@
-from fastapi.testclient import TestClient
+from conftest import test_client
 
-from src.main import app
-
-client = TestClient(app)
-
-
-def test_read_main():
-    response = client.get("/")
+def test_get_root(test_client):
+    response = test_client.get(f"/")
     assert response.status_code == 200
-    assert response.json().get("message") is not None

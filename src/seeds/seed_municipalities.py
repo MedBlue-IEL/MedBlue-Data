@@ -5,7 +5,11 @@ from sqlalchemy.engine import Engine
 from models.municipalities import Municipality  # Your SQLModel table definition
 import csv
 
-MUNICIPALITIES_DATA_FILE = "resources/data/seed_municipality.csv"
+from pathlib import Path
+
+# Points to the project folder
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+MUNICIPALITIES_DATA_FILE = BASE_DIR / "resources/data/seed_municipality.csv"
 
 
 def seed_data_from_csv(csv_file_path: str) -> List[Municipality]:

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 
 from sqlmodel import Session, select
@@ -5,7 +6,8 @@ from sqlalchemy.engine import Engine
 from models.species import Species  # Your SQLModel table definition
 import csv
 
-SPECIES_DATA_FILE = "resources/data/seed_species.csv"
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SPECIES_DATA_FILE = BASE_DIR / "resources/data/seed_species.csv"
 
 
 def seed_data_from_csv(csv_file_path: str) -> List[Species]:
