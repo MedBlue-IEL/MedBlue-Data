@@ -46,6 +46,7 @@ class MeasurementBase(SQLModel):
     determined_by: str | None = Field(default=None, index=False, max_length=255)
     start_date: datetime | None = Field(default=None, index=False)
     end_date: datetime | None = Field(default=None, index=False)
+    measurement_method: str | None  = Field(default=None, index=False)
     measurement_remarks: str | None  = Field(default=None, index=False)
     reef_type_remarks: str | None  = Field(default=None, index=False)
     footprint_wtk: str | None  = Field(default=None, index=False)
@@ -82,6 +83,7 @@ class MeasurementUpdate(SQLModel):
     determined_by: str | None = None
     start_date: datetime | None = None
     end_date: datetime | None = None
+    measurement_method: str | None = None
     measurement_remarks: str | None = None
     reef_type_remarks: str | None  = None
     footprint_wtk: str | None  = None
