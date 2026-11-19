@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_carlit(offset: int = 0, limit: int = 100, session: Session = Depends(ge
 
 # READ a single carlit by ID
 @router.get("/{carlit_id}", response_model=Carlit)
-def read_carlit(carlit_id: int, session: Session = Depends(get_session)) -> Carlit:
+def read_carlit(carlit_id: int, session: Session = Depends(get_session)) -> Type[Carlit]:
     carlit = session.get(Carlit, carlit_id)
     if not carlit:
         raise HTTPException(status_code=404, detail="Carlit not found")
-    return carlit.first()
+    return carlit
 
 # READ a single carlit by name
 @router.get("/name/{carlit_name}", response_model=Carlit)

@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_occurrences(offset: int = 0, limit: int = 100, session: Session = Depen
 
 # READ a single occurrence by ID
 @router.get("/{occurrence_id}", response_model=Occurrence)
-def read_occurrence(occurrence_id: int, session: Session = Depends(get_session)) -> Occurrence:
+def read_occurrence(occurrence_id: int, session: Session = Depends(get_session)) -> Type[Occurrence]:
     occurrence = session.get(Occurrence, occurrence_id)
     if not occurrence:
         raise HTTPException(status_code=404, detail="Occurrence not found")
-    return occurrence.first()
+    return occurrence
 
 # READ a single occurrence by code
 @router.get("/code/{occurrence_code}", response_model=Occurrence)

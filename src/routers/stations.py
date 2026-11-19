@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_stations(offset: int = 0, limit: int = 100, session: Session = Depends(
 
 # READ a single station by ID
 @router.get("/{station_id}", response_model=Station)
-def read_station(station_id: int, session: Session = Depends(get_session)) -> Station:
+def read_station(station_id: int, session: Session = Depends(get_session)) -> Type[Station]:
     station = session.get(Station, station_id)
     if not station:
         raise HTTPException(status_code=404, detail="Station not found")
-    return station.first()
+    return station
 
 # READ a single station by code
 @router.get("/code/{station_code}", response_model=Station)

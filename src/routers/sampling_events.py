@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_sampling_events(offset: int = 0, limit: int = 100, session: Session = D
 
 # READ a single sampling_event by ID
 @router.get("/{sampling_id}", response_model=SamplingEvent)
-def read_sampling_event(sampling_id: int, session: Session = Depends(get_session)) -> SamplingEvent:
+def read_sampling_event(sampling_id: int, session: Session = Depends(get_session)) -> Type[SamplingEvent]:
     sampling_event = session.get(SamplingEvent, sampling_id)
     if not sampling_event:
         raise HTTPException(status_code=404, detail="Sampling Event not found")
-    return sampling_event.first()
+    return sampling_event
 
 # READ a single sampling_event by code
 @router.get("/code/{sampling_code}", response_model=SamplingEvent)

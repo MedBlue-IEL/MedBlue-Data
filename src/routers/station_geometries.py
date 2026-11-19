@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_station_geometries(offset: int = 0, limit: int = 100, session: Session 
 
 # READ a single station_geometry by ID
 @router.get("/{station_geometry_id}", response_model=StationGeometry)
-def read_station_geometry(station_geometry_id: int, session: Session = Depends(get_session)) -> StationGeometry:
+def read_station_geometry(station_geometry_id: int, session: Session = Depends(get_session)) -> Type[StationGeometry]:
     station_geometry = session.get(StationGeometry, station_geometry_id)
     if not station_geometry:
         raise HTTPException(status_code=404, detail="StationGeometry not found")
-    return station_geometry.first()
+    return station_geometry
 
 # READ a single station_geometry by uuid
 @router.get("/code/{station_geometry_uuid}", response_model=StationGeometry)

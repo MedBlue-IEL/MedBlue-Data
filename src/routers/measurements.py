@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_measurements(offset: int = 0, limit: int = 100, session: Session = Depe
 
 # READ a single measurement by ID
 @router.get("/{measurement_id}", response_model=Measurement)
-def read_measurement(measurement_id: int, session: Session = Depends(get_session)) -> Measurement:
+def read_measurement(measurement_id: int, session: Session = Depends(get_session)) -> Type[Measurement]:
     measurement = session.get(Measurement, measurement_id)
     if not measurement:
         raise HTTPException(status_code=404, detail="Measurement not found")
-    return measurement.first()
+    return measurement
 
 # GET multiple measurement by occurrence_id
 @router.get("/occurrence/{occurrence_id}", response_model=list[Measurement])

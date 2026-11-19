@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_habitats(offset: int = 0, limit: int = 100, session: Session = Depends(
 
 # READ a single habitat by ID
 @router.get("/{habitat_id}", response_model=Habitat)
-def read_habitat(habitat_id: int, session: Session = Depends(get_session)) -> Habitat:
+def read_habitat(habitat_id: int, session: Session = Depends(get_session)) -> Type[Habitat]:
     habitat = session.get(Habitat, habitat_id)
     if not habitat:
         raise HTTPException(status_code=404, detail="Habitat not found")
-    return habitat.first()
+    return habitat
 
 # READ a single habitat by code
 @router.get("/code/{habitat_code}", response_model=Habitat)

@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_municipalities(offset: int = 0, limit: int = 100, session: Session = De
 
 # READ a single municipality by ID
 @router.get("/{municipality_id}", response_model=Municipality)
-def read_municipality(municipality_id: int, session: Session = Depends(get_session)) -> Municipality:
+def read_municipality(municipality_id: int, session: Session = Depends(get_session)) -> Type[Municipality]:
     municipality = session.get(Municipality, municipality_id)
     if not municipality:
         raise HTTPException(status_code=404, detail="Municipality not found")
-    return municipality.first()
+    return municipality
 
 # READ a single municipality by code
 @router.get("/code/{municipality_code}", response_model=Municipality)

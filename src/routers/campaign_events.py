@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_campaign_events(offset: int = 0, limit: int = 100, session: Session = D
 
 # READ a single campaign_event by ID
 @router.get("/{campaign_id}", response_model=CampaignEvent)
-def read_campaign_event(campaign_id: int, session: Session = Depends(get_session)) -> CampaignEvent:
+def read_campaign_event(campaign_id: int, session: Session = Depends(get_session)) -> Type[CampaignEvent]:
     campaign_event = session.get(CampaignEvent, campaign_id)
     if not campaign_event:
         raise HTTPException(status_code=404, detail="Campaign Event not found")
-    return campaign_event.first()
+    return campaign_event
 
 # READ a single campaign_event by code
 @router.get("/code/{campaign_code}", response_model=CampaignEvent)

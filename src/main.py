@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from routers import (projects, campaign_events, habitats, municipalities,
                      stations, station_geometries, sampling_events, carlit,
-                     species, occurrences, measurements)
+                     species, occurrences, measurements, assets)
 
 
 # 💡 The modern way to handle setup and cleanup logic in FastAPI
@@ -30,6 +30,7 @@ app.include_router(carlit.router)
 app.include_router(species.router)
 app.include_router(occurrences.router)
 app.include_router(measurements.router)
+app.include_router(assets.router)
 
 @app.get("/")
 def read_root() -> dict[str, str]:

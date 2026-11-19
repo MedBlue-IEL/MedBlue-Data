@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Type
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -38,11 +38,11 @@ def read_species(offset: int = 0, limit: int = 100, session: Session = Depends(g
 
 # READ a single species by ID
 @router.get("/{species_id}", response_model=Species)
-def read_species(species_id: int, session: Session = Depends(get_session)) -> Species:
+def read_species(species_id: int, session: Session = Depends(get_session)) -> Type[Species]:
     species = session.get(Species, species_id)
     if not species:
         raise HTTPException(status_code=404, detail="Species not found")
-    return species.first()
+    return species
 
 # READ a single species by name
 @router.get("/name/{scientific_name}", response_model=Species)
